@@ -13,7 +13,8 @@ class AddressBook:
             choice: User's choice for operation.
         """
         print("Welcome to Address Book\nEnter any option given below:")
-        print("1. Add the contacts in address book")
+        print("1. Add a contact in Address Book")
+        print("2. Edit a contact from Address Book")
         choice = int(input("Enter your choice: "))
         return choice
 
@@ -47,6 +48,26 @@ class AddressBook:
             'email': email
         }
         self.contacts.append(contact)
+        
+    def edit_contact(self, contact):
+        """
+            Description:
+            This fuction takes input from user for edited contact
+            Parameter:
+            self : Refers to the instance of the class AddressBook
+            contact: Contact dictionary containing contact of recent user
+            Return:
+            None
+        """
+        for contact in self.contacts:
+            contact['first_name'] = input("Enter new First Name: ")
+            contact['last_name'] = input("Enter new Last Name: ")
+            contact['address'] = input("Enter new Address: ")
+            contact['city'] = input("Enter new City: ")
+            contact['state'] = input("Enter new State: ")
+            contact['zip_code'] = int(input("Enter new Zip code: "))
+            contact['phone_number'] = int(input("Enter new Phone number: "))
+            contact['email'] = input("Enter new Email address: ")
 
 
     def selection(self, choice):
@@ -63,14 +84,29 @@ class AddressBook:
         match choice:
             case 1:
                 self.create_contact()
+            
+            case 2:
+                full_name = input("Enter the Full Name (To check for edit): ")
+                for contact in self.contacts:
+                    if full_name == f"{contact['first_name']} {contact['last_name']}":
+                        self.edit_contact(contact)
+                        break
+                else:
+                    print("There is no existing contact with this name")
+                    
             case _:
                 print("Invalid choice. Please try again.")
 
 def main():
     
     address_book = AddressBook()
-    user_choice = address_book.menu()
-    address_book.selection(user_choice)
+    
+    while True:
+        user_choice = address_book.menu()
+        address_book.selection(user_choice)
+        choice_to_exit = input("Do you want to continue ( yes / no ):")
+        if choice_to_exit == 'no':
+            break
     
 if __name__ == "__main__":
     main()
