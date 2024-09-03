@@ -16,6 +16,8 @@ class AddressBook:
         print("1. Add a contact in Address Book")
         print("2. Edit a contact from Address Book")
         print("3. Delete a existing contact from Address Book")
+        print("4. Add multiple contact ")
+        print("5. Display all contacts")
         choice = int(input("Enter your choice: "))
         return choice
 
@@ -81,13 +83,49 @@ class AddressBook:
             None
         """
         full_name1 = input("Enter full name of the person to delete: ")
+        contact_found = False
         for contact in self.contacts:
             if full_name1 == f"{contact['first_name']} {contact['last_name']}":
                 self.contacts.remove(contact)
+                contact_found = True
                 print("Person details deleted successfully..")
-            else:
-                print("There is no existing contact with this name.")
+                break
+            
+        if not contact_found:
+            print("There is no existing contact with this name.")
 
+    def add_multiple_contacts(self):
+        """
+            Description:
+            This fuction to add multiple contacts.
+            Parameter:
+            self : Refers to the instance of the class AddressBook
+            Return:
+            None
+        """
+          
+        data_add_count = int(input("Enter the number of contacts you want to add: "))
+        for i in range(data_add_count):
+            print(f"\nAdding contact {i + 1}...")
+            self.create_contact() 
+            print("Contacts added successfully!")
+
+    def display_contacts(self):
+        """
+            Description:
+            This fuction Displays all the contacts.
+            Parameter:
+            self : Refers to the instance of the class AddressBook
+            Return:
+            None
+        """
+        if not self.contacts:
+            print("No contacts to display..")
+        else:
+            for idx, contact in enumerate(self.contacts, start=1):
+                print(f"\nContact {idx}:")
+                for key, value in contact.items():
+                    print(f"{key}: {value}")
 
 
     def selection(self, choice):
@@ -116,6 +154,12 @@ class AddressBook:
                         
             case 3:
                 self.del_contact()
+                
+            case 4:
+                self.add_multiple_contacts()
+                
+            case 5:
+                self.display_contacts()
                       
             case _:
                 print("Invalid choice. Please try again.")
