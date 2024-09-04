@@ -34,6 +34,12 @@ class AddressBook:
         
         first_name = input("Enter First Name: ")
         last_name = input("Enter Last Name: ")
+        
+        for contact in self.contacts:
+            if contact['first_name'] == first_name and contact['last_name'] == last_name:
+                print("This contact already exists..")
+                return
+        
         address = input("Enter Address : ")
         city = input("Enter City: ")
         state = input("Enter State: ")
