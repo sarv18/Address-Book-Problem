@@ -18,7 +18,8 @@ class AddressBook:
         print("3. Delete a existing contact from Address Book")
         print("4. Add multiple contact ")
         print("5. Display all contacts")
-        print("6. Return to Address Book System menu")
+        print("6. Sort contacts by name")
+        print("7. Return to Address Book System menu")
         choice = int(input("Enter your choice: "))
         return choice
 
@@ -171,6 +172,10 @@ class AddressBook:
                 self.display_contacts()
             
             case 6:
+                self.sort_contacts_by_name()
+                self.display_contacts()
+                
+            case 7:
                 return False  
             case _:
                 print("Invalid choice. Please try again.")
@@ -193,6 +198,19 @@ class AddressBook:
             if contact[location_type].lower() == location_value.lower():
                 matches.append(contact)
         return matches
+
+    def sort_contacts_by_name(self):
+        """
+        Description:
+        This function sorts the contacts in the Address Book alphabetically by the person's name (first name, then last name).
+        Parameter:
+        self : Refers to the instance of the class AddressBook
+        Return:
+        None
+        """
+        self.contacts.sort(key=lambda contact: (contact['first_name'].lower(), contact['last_name'].lower()))
+        print("Contacts sorted alphabetically by name.")
+
 
 class AddressBookSystem:
     def __init__(self):
@@ -368,13 +386,13 @@ def main():
                 address_book_system.list_address_books()
                 
             case 4:
-                    address_book_system.search_person_in_city_or_state()
+                address_book_system.search_person_in_city_or_state()
                 
             case 5:
-                    address_book_system.display_all_data_for_city_or_state()
+                address_book_system.display_all_data_for_city_or_state()
                     
             case 6:
-                    address_book_system.count_contacts_by_city_or_state()
+                address_book_system.count_contacts_by_city_or_state()
                     
             case 7:
                 print("Exiting the Address Book System. Goodbye!")
