@@ -18,7 +18,7 @@ class AddressBook:
         print("3. Delete a existing contact from Address Book")
         print("4. Add multiple contact ")
         print("5. Display all contacts")
-        print("6. Sort contacts by name")
+        print("6. Sort contacts ")
         print("7. Return to Address Book System menu")
         choice = int(input("Enter your choice: "))
         return choice
@@ -172,8 +172,7 @@ class AddressBook:
                 self.display_contacts()
             
             case 6:
-                self.sort_contacts_by_name()
-                self.display_contacts()
+                self.sort_menu()
                 
             case 7:
                 return False  
@@ -210,7 +209,73 @@ class AddressBook:
         """
         self.contacts.sort(key=lambda contact: (contact['first_name'].lower(), contact['last_name'].lower()))
         print("Contacts sorted alphabetically by name.")
+        
+    def sort_contacts_by_city(self):
+        """
+        Description:
+        This function sorts the contacts in the Address Book alphabetically by the city name.
+        Parameter:
+        self : Refers to the instance of the class AddressBook
+        Return:
+        None
+        """
+        self.contacts.sort(key=lambda contact: contact['city'].lower())
+        print("Contacts sorted alphabetically by city.")
 
+    def sort_contacts_by_state(self):
+        """
+        Description:
+        This function sorts the contacts in the Address Book alphabetically by the state name.
+        Parameter:
+        self : Refers to the instance of the class AddressBook
+        Return:
+        None
+        """
+        self.contacts.sort(key=lambda contact: contact['state'].lower())
+        print("Contacts sorted alphabetically by state.")
+
+    def sort_contacts_by_zip(self):
+        """
+        Description:
+        This function sorts the contacts in the Address Book by the zip code in ascending order.
+        Parameter:
+        self : Refers to the instance of the class AddressBook
+        Return:
+        None
+        """
+        self.contacts.sort(key=lambda contact: contact['zip_code'])
+        print("Contacts sorted by zip code.")
+
+    def sort_menu(self):
+        """
+        Description:
+        Displays a sorting menu for the user to choose the sorting criterion.
+        Parameter:
+        self : Refers to the instance of the class AddressBook
+        Return:
+        None
+        """
+        print("\nSort contacts by:")
+        print("1. Name")
+        print("2. City")
+        print("3. State")
+        print("4. Zip Code")
+        sort_choice = int(input("Enter your choice: "))
+
+        match sort_choice:
+            case 1:
+                self.sort_contacts_by_name()
+            case 2:
+                self.sort_contacts_by_city()
+            case 3:
+                self.sort_contacts_by_state()
+            case 4:
+                self.sort_contacts_by_zip()
+            case _:
+                print("Invalid choice. Sorting by Name by default.")
+                self.sort_contacts_by_name()
+
+        self.display_contacts()
 
 class AddressBookSystem:
     def __init__(self):
