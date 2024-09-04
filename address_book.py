@@ -278,6 +278,39 @@ class AddressBookSystem:
                 for contact in contacts:
                     print(f"  - {contact['first_name']} {contact['last_name']}, {contact['city']}, {contact['state']}")
 
+    def display_all_data_for_city_or_state(self):
+        """
+        Description:
+        This function takes a city or state from the user and displays all the data 
+        of persons from all Address Books in the system for that city or state.
+        Parameter:
+        self : Refers to the instance of the class AddressBookSystem
+        Return:
+        None
+        """
+        location_type = input("Enter 'city' or 'state': ").strip().lower()
+        if location_type not in ['city', 'state']:
+            print("Invalid option. Please enter 'city' or 'state'.")
+            return
+
+        location_value = input(f"Enter the {location_type} to display all data for: ").strip()
+
+        found_contacts = []
+
+        for book_name, address_book in self.address_books.items():
+            matches = address_book.search_contact_by_city_or_state(location_type, location_value)
+            if matches:
+                found_contacts.append((book_name, matches))
+
+        if not found_contacts:
+            print(f"No contacts found in any Address Book for {location_type.capitalize()}: {location_value}")
+        else:
+            print(f"\nAll contacts found in {location_type.capitalize()}: {location_value}")
+            for book_name, contacts in found_contacts:
+                print(f"\nAddress Book: {book_name}")
+                for contact in contacts:
+                    print(f"  - {contact['first_name']} {contact['last_name']}, {contact['address']}, {contact['city']}, {contact['state']}, {contact['zip_code']}, {contact['phone_number']}, {contact['email']}")
+
 
 def main():
     
@@ -288,7 +321,8 @@ def main():
         print("2. Select an Address Book")
         print("3. List all Address Books")
         print("4. Search Person by City or State")
-        print("5. Exit")
+        print("5. Display all data for a City or State")
+        print("6. Exit")
         choice = int(input("Enter your choice: "))
 
         match choice:
@@ -309,6 +343,9 @@ def main():
                     address_book_system.search_person_in_city_or_state()
                 
             case 5:
+                    address_book_system.display_all_data_for_city_or_state()
+                    
+            case 6:
                 print("Exiting the Address Book System. Goodbye!")
                 break
             
