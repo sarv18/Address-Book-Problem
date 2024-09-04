@@ -18,6 +18,7 @@ class AddressBook:
         print("3. Delete a existing contact from Address Book")
         print("4. Add multiple contact ")
         print("5. Display all contacts")
+        print("6. Return to Address Book System menu")
         choice = int(input("Enter your choice: "))
         return choice
 
@@ -51,6 +52,7 @@ class AddressBook:
             'email': email
         }
         self.contacts.append(contact)
+        print("Contact added successfully!")
         
     def edit_contact(self, contact):
         """
@@ -62,15 +64,16 @@ class AddressBook:
             Return:
             None
         """
-        for contact in self.contacts:
-            contact['first_name'] = input("Enter new First Name: ")
-            contact['last_name'] = input("Enter new Last Name: ")
-            contact['address'] = input("Enter new Address: ")
-            contact['city'] = input("Enter new City: ")
-            contact['state'] = input("Enter new State: ")
-            contact['zip_code'] = int(input("Enter new Zip code: "))
-            contact['phone_number'] = int(input("Enter new Phone number: "))
-            contact['email'] = input("Enter new Email address: ")
+        contact['first_name'] = input("Enter new First Name: ")
+        contact['last_name'] = input("Enter new Last Name: ")
+        contact['address'] = input("Enter new Address: ")
+        contact['city'] = input("Enter new City: ")
+        contact['state'] = input("Enter new State: ")
+        contact['zip_code'] = int(input("Enter new Zip code: "))
+        contact['phone_number'] = int(input("Enter new Phone number: "))
+        contact['email'] = input("Enter new Email address: ")
+        
+        print("Contact updated successfully!")
             
     
     def del_contact(self):
@@ -160,20 +163,96 @@ class AddressBook:
                 
             case 5:
                 self.display_contacts()
-                      
+            
+            case 6:
+                return False  
             case _:
                 print("Invalid choice. Please try again.")
+                
+        return True
+
+
+class AddressBookSystem:
+    def __init__(self):
+        self.address_books = {}
+
+    def add_address_book(self):
+        """
+        Description:
+        This function creates a new Address Book with a unique name.
+        Parameter:
+        self : Refers to the instance of the class AddressBookSystem
+        Return:
+        None
+        """
+        name = input("Enter a unique name for the new Address Book: ")
+        if name in self.address_books:
+            print("An Address Book with this name already exists. Please choose a different name.")
+        else:
+            self.address_books[name] = AddressBook()
+            print(f"Address Book '{name}' created successfully!")
+
+    def select_address_book(self):
+        """
+        Description:
+        This function selects an existing Address Book by name.
+        Parameter:
+        self : Refers to the instance of the class AddressBookSystem
+        Return:
+        selected_book: The selected Address Book instance.
+        """
+        name = input("Enter the name of the Address Book you want to select: ")
+        if name in self.address_books:
+            return self.address_books[name]
+        else:
+            print("No Address Book found with this name.")
+            return None
+
+    def list_address_books(self):
+        """
+        Description:
+        This function lists all the available Address Books.
+        Parameter:
+        self : Refers to the instance of the class AddressBookSystem
+        Return:
+        None
+        """
+        if not self.address_books:
+            print("No Address Books available.")
+        else:
+            print("Available Address Books:")
+            for name in self.address_books:
+                print(f"- {name}")
+
 
 def main():
     
-    address_book = AddressBook()
-    
+    address_book_system = AddressBookSystem()
+
     while True:
-        user_choice = address_book.menu()
-        address_book.selection(user_choice)
-        choice_to_exit = input("Do you want to continue ( yes / no ):")
-        if choice_to_exit == 'no':
-            break
+        print("\n1. Add a new Address Book")
+        print("2. Select an Address Book")
+        print("3. List all Address Books")
+        print("4. Exit")
+        choice = int(input("Enter your choice: "))
+
+        match choice:
+            case 1:
+                address_book_system.add_address_book()
+            case 2:
+                selected_book = address_book_system.select_address_book()
+                if selected_book:
+                    while True:
+                        user_choice = selected_book.menu()
+                        if not selected_book.selection(user_choice):
+                            break
+            case 3:
+                address_book_system.list_address_books()
+            case 4:
+                print("Exiting the Address Book System. Goodbye!")
+                break
+            case _:
+                print("Invalid choice. Please try again.")
     
 if __name__ == "__main__":
     main()
