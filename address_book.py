@@ -311,6 +311,33 @@ class AddressBookSystem:
                 for contact in contacts:
                     print(f"  - {contact['first_name']} {contact['last_name']}, {contact['address']}, {contact['city']}, {contact['state']}, {contact['zip_code']}, {contact['phone_number']}, {contact['email']}")
 
+    def count_contacts_by_city_or_state(self):
+        """
+        Description:
+        This function counts the number of contact persons by city or state across all Address Books in the system.
+        Parameter:
+        self : Refers to the instance of the class AddressBookSystem
+        Return:
+        None
+        """
+        location_type = input("Enter 'city' or 'state': ").strip().lower()
+        if location_type not in ['city', 'state']:
+            print("Invalid option. Please enter 'city' or 'state'.")
+            return
+
+        location_value = input(f"Enter the {location_type} to count contacts for: ").strip()
+
+        total_count = 0
+
+        for book_name, address_book in self.address_books.items():
+            matches = address_book.search_contact_by_city_or_state(location_type, location_value)
+            count = len(matches)
+            total_count += count
+            if count > 0:
+                print(f"{count} contacts found in Address Book: {book_name}")
+
+        print(f"\nTotal number of contacts found in {location_type.capitalize()}: {location_value} is {total_count}")
+
 
 def main():
     
@@ -322,7 +349,8 @@ def main():
         print("3. List all Address Books")
         print("4. Search Person by City or State")
         print("5. Display all data for a City or State")
-        print("6. Exit")
+        print("6. Count contacts by City or State")
+        print("7. Exit")
         choice = int(input("Enter your choice: "))
 
         match choice:
@@ -346,6 +374,9 @@ def main():
                     address_book_system.display_all_data_for_city_or_state()
                     
             case 6:
+                    address_book_system.count_contacts_by_city_or_state()
+                    
+            case 7:
                 print("Exiting the Address Book System. Goodbye!")
                 break
             
