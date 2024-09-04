@@ -177,6 +177,22 @@ class AddressBook:
                 
         return True
 
+    def search_contact_by_city_or_state(self, location_type, location_value):
+        """
+        Description:
+        This function searches for contacts in the Address Book by city or state.
+        Parameter:
+        self : Refers to the instance of the class AddressBook
+        location_type : 'city' or 'state' - indicates the type of location to search by
+        location_value : The value of the city or state to search for
+        Return:
+        list: A list of matching contacts
+        """
+        matches = []
+        for contact in self.contacts:
+            if contact[location_type].lower() == location_value.lower():
+                matches.append(contact)
+        return matches
 
 class AddressBookSystem:
     def __init__(self):
@@ -230,6 +246,38 @@ class AddressBookSystem:
             for name in self.address_books:
                 print(f"- {name}")
 
+    def search_person_in_city_or_state(self):
+        """
+        Description:
+        This function searches for a person in a city or state across all Address Books.
+        Parameter:
+        self : Refers to the instance of the class AddressBookSystem
+        Return:
+        None
+        """
+        location_type = input("Search by 'city' or 'state': ").strip().lower()
+        if location_type not in ['city', 'state']:
+            print("Invalid option. Please enter 'city' or 'state'.")
+            return
+
+        location_value = input(f"Enter the {location_type} name to search for: ").strip()
+
+        found_contacts = []
+
+        for book_name, address_book in self.address_books.items():
+            matches = address_book.search_contact_by_city_or_state(location_type, location_value)
+            if matches:
+                found_contacts.append((book_name, matches))
+
+        if not found_contacts:
+            print(f"No contacts found in any Address Book for {location_type.capitalize()}: {location_value}")
+        else:
+            print(f"\nContacts found in {location_type.capitalize()}: {location_value}")
+            for book_name, contacts in found_contacts:
+                print(f"\nAddress Book: {book_name}")
+                for contact in contacts:
+                    print(f"  - {contact['first_name']} {contact['last_name']}, {contact['city']}, {contact['state']}")
+
 
 def main():
     
@@ -239,12 +287,14 @@ def main():
         print("\n1. Add a new Address Book")
         print("2. Select an Address Book")
         print("3. List all Address Books")
-        print("4. Exit")
+        print("4. Search Person by City or State")
+        print("5. Exit")
         choice = int(input("Enter your choice: "))
 
         match choice:
             case 1:
                 address_book_system.add_address_book()
+                
             case 2:
                 selected_book = address_book_system.select_address_book()
                 if selected_book:
@@ -254,9 +304,14 @@ def main():
                             break
             case 3:
                 address_book_system.list_address_books()
+                
             case 4:
+                    address_book_system.search_person_in_city_or_state()
+                
+            case 5:
                 print("Exiting the Address Book System. Goodbye!")
                 break
+            
             case _:
                 print("Invalid choice. Please try again.")
     
