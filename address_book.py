@@ -1,6 +1,7 @@
 
 import os
 import csv
+import json
 
 class AddressBook:
     def __init__(self):
@@ -371,6 +372,29 @@ class AddressBook:
             }
             self.contacts.append(contact)
             
+    def to_json(self):
+        """
+        Description:
+        This function converts contacts into a list of dictionaries for JSON format.
+        Parameter:
+        self : Refers to the instance of the class AddressBookSystem
+        Return:
+        contacts : Each line represents one contact.
+        """
+        return self.contacts
+
+    def from_json(self, json_data):
+        """
+        Description:
+        This function loads contacts from a list of dictionaries (JSON data).
+        Parameter:
+        self : Refers to the instance of the class AddressBookSystem
+        json_data : List of contacts from data is loaded.
+        Return:
+        None
+        """
+        self.contacts.extend(json_data)        
+    
 
 class AddressBookSystem:
     def __init__(self):
@@ -519,7 +543,7 @@ class AddressBookSystem:
     def save_to_file(self, filename, filetype="text"):
         """
         Description:
-        This function save address books to either text or CSV format.
+        This function save address books to either text or CSV or JSON format.
         Parameter:
         self : Refers to the instance of the class AddressBookSystem
         filename : Filename of file to save data.
@@ -543,11 +567,20 @@ class AddressBookSystem:
                     csv_writer.writerows(address_book.to_csv())
                     csv_writer.writerow([]) 
             print(f"Address books saved to {filename} as CSV.")
+            
+        elif filetype == "json":
+            with open(filename, 'w') as file:
+                data = {
+                    book_name: address_book.to_json()
+                    for book_name, address_book in self.address_books.items()
+                }
+                json.dump(data, file, indent=4)
+            print(f"Address books saved to {filename} as JSON.")
     
     def read_from_file(self, filename, filetype="text"):
         """
         Description:
-        This function read address books from either text or CSV format.
+        This function read address books from either text or CSV or JSON format.
         Parameter:
         self : Refers to the instance of the class AddressBookSystem
         filename : Filename of file from the data is loaded.
@@ -595,6 +628,18 @@ class AddressBookSystem:
                 print(f"Data loaded from {filename} as CSV.")
             else:
                 print(f"File '{filename}' does not exist.")
+                
+        elif filetype == "json":
+            if os.path.exists(filename):
+                with open(filename, 'r') as file:
+                    data = json.load(file)
+                    for book_name, contacts in data.items():
+                        if book_name not in self.address_books:
+                            self.address_books[book_name] = AddressBook()
+                        self.address_books[book_name].from_json(contacts)
+                print(f"Data loaded from {filename} as JSON.")
+            else:
+                print(f"File '{filename}' does not exist.")
             
 
 def main():
@@ -639,12 +684,12 @@ def main():
                     
             case 7:
                 filename = input("Enter the filename to save data: ")
-                filetype = input("Choose file format (text/csv): ").lower()
+                filetype = input("Choose file format (text/csv/json): ").lower()
                 address_book_system.save_to_file(filename, filetype)
                 
             case 8:
                 filename = input("Enter the filename to load data: ")
-                filetype = input("Choose file format (text/csv): ").lower()
+                filetype = input("Choose file format (text/csv/json): ").lower()
                 address_book_system.read_from_file(filename, filetype)
                 
             case 9:
