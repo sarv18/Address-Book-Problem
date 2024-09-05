@@ -1,5 +1,6 @@
 
 import os
+import csv
 
 class AddressBook:
     def __init__(self):
@@ -323,7 +324,53 @@ class AddressBook:
                 else:
                     print(f"Skipping invalid line: {line}")
 
+    def to_csv(self):
+        """
+        Description:
+        This function converts contacts into CSV format (list of rows).
+        Parameter:
+        self : Refers to the instance of the class AddressBookSystem
+        Return:
+        csv_data : A multi-line string, where each line represents one contact.
+        """
+        csv_data = []
+        for contact in self.contacts:
+            csv_data.append([
+                contact['first_name'],
+                contact['last_name'],
+                contact['address'],
+                contact['city'],
+                contact['state'],
+                contact['zip_code'],
+                contact['phone_number'],
+                contact['email']
+            ])
+        return csv_data
 
+    def from_csv(self, csv_lines):
+        """
+        Description:
+        This function loads contacts from a CSV format (used when reading from a CSV file).
+        Parameter:
+        self : Refers to the instance of the class AddressBookSystem
+        contact_lines : List of contacts from data is loaded.
+        Return:
+        None
+        """
+        for row in csv_lines:
+            first_name, last_name, address, city, state, zip_code, phone_number, email = row
+            contact = {
+                'first_name': first_name,
+                'last_name': last_name,
+                'address': address,
+                'city': city,
+                'state': state,
+                'zip_code': int(zip_code),
+                'phone_number': int(phone_number),
+                'email': email
+            }
+            self.contacts.append(contact)
+            
 
 class AddressBookSystem:
     def __init__(self):
@@ -469,49 +516,85 @@ class AddressBookSystem:
 
         print(f"\nTotal number of contacts found in {location_type.capitalize()}: {location_value} is {total_count}")
 
-    def write_to_file(self, filename):
+    def save_to_file(self, filename, filetype="text"):
         """
         Description:
-        This fuction saves all address books and their contacts to a text file.
+        This function save address books to either text or CSV format.
         Parameter:
         self : Refers to the instance of the class AddressBookSystem
         filename : Filename of file to save data.
+        filetype="text" : Default filetype as text.
         Return:
         None
         """
-        with open(filename, 'w') as file:
-            for book_name, book in self.address_books.items():
-                file.write(f"AddressBook:{book_name}\n")
-                file.write(book.to_text())
-                file.write("\n---\n")
-        print(f"Data saved to {filename}.")
-
-    def read_from_file(self, filename):
+        if filetype == "text":
+            with open(filename, 'w') as file:
+                for book_name, address_book in self.address_books.items():
+                    file.write(f"AddressBook:{book_name}\n")
+                    file.write(address_book.to_text())
+                    file.write("\n---\n")
+            print(f"Address books saved to {filename} as text.")
+        
+        elif filetype == "csv":
+            with open(filename, 'w', newline='') as file:
+                csv_writer = csv.writer(file)
+                for book_name, address_book in self.address_books.items():
+                    csv_writer.writerow([f"AddressBook:{book_name}"])
+                    csv_writer.writerows(address_book.to_csv())
+                    csv_writer.writerow([]) 
+            print(f"Address books saved to {filename} as CSV.")
+    
+    def read_from_file(self, filename, filetype="text"):
         """
         Description:
-        This function loads address books and contacts from a text file.
+        This function read address books from either text or CSV format.
         Parameter:
         self : Refers to the instance of the class AddressBookSystem
         filename : Filename of file from the data is loaded.
+        filetype="text" : Default filetype as text.
         Return:
         None
         """
-        if os.path.exists(filename):
-            with open(filename, 'r') as file:
-                content = file.read().strip()
-                sections = content.split("\n---\n")
-
-                for section in sections:
-                    lines = section.splitlines()
-                    if lines[0].startswith("AddressBook:"):
-                        book_name = lines[0].split(":")[1]
-                        contacts = lines[1:]
+        if filetype == "text":
+            if os.path.exists(filename):
+                with open(filename, 'r') as file:
+                    content = file.read().strip()
+                    sections = content.split("\n---\n")
+                    for section in sections:
+                        lines = section.splitlines()
+                        if lines and lines[0].startswith("AddressBook:"):
+                            book_name = lines[0].split(":")[1].strip()
+                            contacts = lines[1:] 
+                            if book_name not in self.address_books:
+                                self.address_books[book_name] = AddressBook()
+                            self.address_books[book_name].from_text(contacts)
+                print(f"Data loaded from {filename} as text.")
+            else:
+                print(f"File '{filename}' does not exist.")
+        
+        elif filetype == "csv":
+            if os.path.exists(filename):
+                with open(filename, 'r') as file:
+                    csv_reader = csv.reader(file)
+                    book_name = None
+                    contacts = []
+                    for row in csv_reader:
+                        if row and row[0].startswith("AddressBook:"):
+                            if book_name: 
+                                if book_name not in self.address_books:
+                                    self.address_books[book_name] = AddressBook()
+                                self.address_books[book_name].from_csv(contacts)
+                                contacts = [] 
+                            book_name = row[0].split(":")[1].strip()
+                        elif row: 
+                            contacts.append(row)
+                    if book_name and contacts:
                         if book_name not in self.address_books:
                             self.address_books[book_name] = AddressBook()
-                        self.address_books[book_name].from_text(contacts)
-            print(f"Data loaded from {filename}.")
-        else:
-            print(f"File '{filename}' does not exist.")
+                        self.address_books[book_name].from_csv(contacts)
+                print(f"Data loaded from {filename} as CSV.")
+            else:
+                print(f"File '{filename}' does not exist.")
             
 
 def main():
@@ -525,7 +608,6 @@ def main():
         print("4. Search Person by City or State")
         print("5. Display all data for a City or State")
         print("6. Count contacts by City or State")
-        print("7. Exit")
         print("7. Save Address Books to file")
         print("8. Load Address Books from file")
         print("9. Exit")
@@ -557,11 +639,13 @@ def main():
                     
             case 7:
                 filename = input("Enter the filename to save data: ")
-                address_book_system.write_to_file(filename)
+                filetype = input("Choose file format (text/csv): ").lower()
+                address_book_system.save_to_file(filename, filetype)
                 
             case 8:
                 filename = input("Enter the filename to load data: ")
-                address_book_system.read_from_file(filename)
+                filetype = input("Choose file format (text/csv): ").lower()
+                address_book_system.read_from_file(filename, filetype)
                 
             case 9:
                 print("Exiting the Address Book System. Goodbye!")
