@@ -1,4 +1,6 @@
 
+import os
+
 class AddressBook:
     def __init__(self):
         self.contacts = []
@@ -277,6 +279,52 @@ class AddressBook:
 
         self.display_contacts()
 
+    def to_text(self):
+        """
+        Description:
+        This function converts the Address Book contacts to a text format suitable for saving to a file.
+        Parameter:
+        self : Refers to the instance of the class AddressBookSystem
+        Return:
+        lines : A multi-line string, where each line represents one contact.
+        """
+        lines = []
+        for contact in self.contacts:
+            lines.append(f"{contact['first_name']}|{contact['last_name']}|{contact['address']}|{contact['city']}|"
+                         f"{contact['state']}|{contact['zip_code']}|{contact['phone_number']}|{contact['email']}")
+        return "\n".join(lines)
+
+    def from_text(self, contact_lines):
+        """
+        Description:
+        This function loads contacts from a text format (used when reading from a file).
+        Parameter:
+        self : Refers to the instance of the class AddressBookSystem
+        contact_lines : List of contacts from data is loaded.
+        Return:
+        None
+        """
+        for line in contact_lines:
+            if line.strip():  
+                fields = line.split("|")
+                if len(fields) == 8: 
+                    first_name, last_name, address, city, state, zip_code, phone_number, email = fields
+                    contact = {
+                        'first_name': first_name,
+                        'last_name': last_name,
+                        'address': address,
+                        'city': city,
+                        'state': state,
+                        'zip_code': int(zip_code),
+                        'phone_number': int(phone_number),
+                        'email': email
+                    }
+                    self.contacts.append(contact)
+                else:
+                    print(f"Skipping invalid line: {line}")
+
+
+
 class AddressBookSystem:
     def __init__(self):
         self.address_books = {}
@@ -421,6 +469,50 @@ class AddressBookSystem:
 
         print(f"\nTotal number of contacts found in {location_type.capitalize()}: {location_value} is {total_count}")
 
+    def write_to_file(self, filename):
+        """
+        Description:
+        This fuction saves all address books and their contacts to a text file.
+        Parameter:
+        self : Refers to the instance of the class AddressBookSystem
+        filename : Filename of file to save data.
+        Return:
+        None
+        """
+        with open(filename, 'w') as file:
+            for book_name, book in self.address_books.items():
+                file.write(f"AddressBook:{book_name}\n")
+                file.write(book.to_text())
+                file.write("\n---\n")
+        print(f"Data saved to {filename}.")
+
+    def read_from_file(self, filename):
+        """
+        Description:
+        This function loads address books and contacts from a text file.
+        Parameter:
+        self : Refers to the instance of the class AddressBookSystem
+        filename : Filename of file from the data is loaded.
+        Return:
+        None
+        """
+        if os.path.exists(filename):
+            with open(filename, 'r') as file:
+                content = file.read().strip()
+                sections = content.split("\n---\n")
+
+                for section in sections:
+                    lines = section.splitlines()
+                    if lines[0].startswith("AddressBook:"):
+                        book_name = lines[0].split(":")[1]
+                        contacts = lines[1:]
+                        if book_name not in self.address_books:
+                            self.address_books[book_name] = AddressBook()
+                        self.address_books[book_name].from_text(contacts)
+            print(f"Data loaded from {filename}.")
+        else:
+            print(f"File '{filename}' does not exist.")
+            
 
 def main():
     
@@ -434,6 +526,10 @@ def main():
         print("5. Display all data for a City or State")
         print("6. Count contacts by City or State")
         print("7. Exit")
+        print("7. Save Address Books to file")
+        print("8. Load Address Books from file")
+        print("9. Exit")
+        
         choice = int(input("Enter your choice: "))
 
         match choice:
@@ -460,6 +556,14 @@ def main():
                 address_book_system.count_contacts_by_city_or_state()
                     
             case 7:
+                filename = input("Enter the filename to save data: ")
+                address_book_system.write_to_file(filename)
+                
+            case 8:
+                filename = input("Enter the filename to load data: ")
+                address_book_system.read_from_file(filename)
+                
+            case 9:
                 print("Exiting the Address Book System. Goodbye!")
                 break
             
